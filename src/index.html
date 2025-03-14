@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Bootstrap CSS (optional) -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+
+  <!-- Font Awesome for Icons -->
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+  <!-- Chart.js (must load before your index.js so the chart code is available) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Link to your final index.css -->
+  <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="hamburger" onclick="toggleSidebar()">&#9776;</span>
+      <h3 class="panel-title">Admin Panel</h3>
+    </div>
+    <!-- Profile Container -->
+    <div class="profile-container" onclick="toggleProfileDropdown()">
+      <i class="fas fa-user-circle"></i>
+      Profile
+      <div id="profileDropdown" class="profile-dropdown">
+        <div id="profileUserName"></div>
+        <hr />
+        <a href="#" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <a href="#" onclick="showPage('dashboard')">
+      <i class="fas fa-tachometer-alt"></i>
+      <span>Dashboard</span>
+    </a>
+
+    <!-- Employees -->
+    <a href="#" onclick="toggleSubmenu('employeeMenu')">
+      <i class="fas fa-users"></i>
+      <span>Employees</span>
+    </a>
+    <div id="employeeMenu" class="submenu">
+      <a href="#" onclick="showPage('addEmployee')">
+        <i class="fas fa-user-plus"></i>
+        <span>Add Employee</span>
+      </a>
+      <a href="#" onclick="showPage('assignTask')">
+        <i class="fas fa-tasks"></i>
+        <span>Assign Task</span>
+      </a>
+      <a href="#" onclick="showPage('trackLocation')">
+        <i class="fas fa-map-marker-alt"></i>
+        <span>Track Location</span>
+      </a>
+    </div>
+
+    <!-- Setup -->
+    <a href="#" onclick="toggleSubmenu('setupMenu')">
+      <i class="fas fa-cogs"></i>
+      <span>Setup</span>
+    </a>
+    <div id="setupMenu" class="submenu">
+      <a href="#" onclick="showPage('createChecklist')">
+        <i class="fas fa-clipboard-check"></i>
+        <span>Create Checklist</span>
+      </a>
+    </div>
+
+    <!-- Clients -->
+    <a href="#" onclick="showPage('clients')">
+      <i class="fas fa-user-friends"></i>
+      <span>Clients</span>
+    </a>
+
+    <!-- Payments -->
+    <a href="#" onclick="showPage('payments')">
+      <i class="fas fa-money-check-alt"></i>
+      <span>Payments</span>
+    </a>
+
+    <!-- Purifier -->
+    <a href="#" onclick="showPage('purifier')">
+      <i class="fas fa-tint"></i>
+      <span>Purifier Details</span>
+    </a>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="content">
+    <!-- DASHBOARD PAGE -->
+    <div id="dashboard" class="page active">
+      <h2>Dashboard</h2>
+      <div class="dashboard-cards">
+        <div class="card bg-primary">
+          <h5>Total Clients</h5>
+          <p>50</p>
+        </div>
+        <div class="card bg-success">
+          <h5>Recived Amount</h5>
+          <p>₹30,000</p>
+        </div>
+        <div class="card bg-warning">
+          <h5>Pending Payments</h5>
+          <p>₹10,000</p>
+        </div>
+      </div>
+
+      <!-- Chart row -->
+      <div class="chart-wrapper">
+        <div class="chart-container">
+          <canvas id="employeeChart"></canvas>
+        </div>
+        <div class="chart-container">
+          <canvas id="taskPieChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADD EMPLOYEE PAGE -->
+<div id="addEmployee" class="page">
+  <h2>Add Employee</h2>
+  <div class="employee-form-container" style="display: flex; gap: 20px; flex-wrap: wrap;">
+    <!-- Employee Form -->
+    <form id="addEmployeeForm" class="p-3 shadow bg-white rounded" style="flex: 1; min-width: 300px;">
+      <div class="mb-3">
+        <label class="form-label">Full Name</label>
+        <input type="text" class="form-control" name="fullName" placeholder="John Doe" required />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control" name="email" placeholder="john@example.com" />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Department</label>
+        <select class="form-select" name="department">
+          <option>Sales</option>
+          <option>Service</option>
+          <option>Accountant</option>
+          <option>Legal Advisor</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Role</label>
+        <select class="form-select" name="role">
+          <option value="Employee">Employee</option>
+          <option value="Manager">Manager</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" type="submit">Add Employee</button>
+    </form>
+
+    <!-- Local Employees Table -->
+    <div class="table-container shadow bg-white rounded p-3" style="flex: 1; min-width: 300px;">
+      <h4>Local Employees</h4>
+      <table class="table table-striped" id="addEmployeeTable">
+        <thead>
+          <tr>
+            <th>Emp ID</th>
+            <th>Full Name</th>
+            <th>Department</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- New employees will appear here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+  <!-- ASSIGN TASK PAGE -->
+<div id="assignTask" class="page">
+  <h2>Assign Task</h2>
+  <div class="assign-task-container" style="display: flex; gap: 20px; flex-wrap: wrap;">
+    <!-- Assign Task Form (Left Side) -->
+    <form id="assignTaskForm" class="p-3 shadow bg-white rounded" style="flex: 1; min-width: 300px;">
+      <!-- Employee Dropdown with dummy names -->
+      <div class="mb-3">
+        <label class="form-label">Employee</label>
+        <select class="form-select" name="employee" required>
+          <option value="">Select Employee</option>
+          <option>Vamshi</option>
+          <option>Suresh</option>
+          <option>Ramesh</option>
+          <option>Kushal</option>
+          <option>Aditya</option>
+        </select>
+      </div>
+      <!-- Client Dropdown -->
+      <div class="mb-3">
+        <label class="form-label">Client</label>
+        <select class="form-select" name="client" required>
+          <option value="">Select Client</option>
+          <option>ABC Corp</option>
+          <option>XYZ Ltd</option>
+          <option>Acme Inc</option>
+        </select>
+      </div>
+      <!-- Checklist Manual Input -->
+      <div class="mb-3">
+        <label class="form-label">Checklist (Comma Separated)</label>
+        <input type="text" class="form-control" name="checklist" placeholder="e.g. Prepare Report, Follow Up" required>
+      </div>
+      <!-- Task Date -->
+      <div class="mb-3">
+        <label class="form-label">Task Date</label>
+        <input type="date" class="form-control" name="taskDate" required>
+      </div>
+      <!-- Task Duration (Time Input in HH:MM) -->
+      <div class="mb-3">
+        <label class="form-label">Task Duration (HH:MM)</label>
+        <input type="time" class="form-control" name="taskDuration" required>
+      </div>
+      <button class="btn btn-primary" type="submit">Assign Task</button>
+    </form>
+
+    <!-- Assigned Task Table (Right Side) -->
+    <div class="table-container shadow bg-white rounded p-3" style="flex: 1; min-width: 300px;">
+      <h4>Assigned Tasks</h4>
+      <table class="table table-striped" id="assignTaskTable">
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Client</th>
+            <th>Checklist</th>
+            <th>Task Date</th>
+            <th>Duration</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- New assigned tasks will appear here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+   <!-- TRACK LOCATION PAGE -->
+<div id="trackLocation" class="page">
+  <h2>Track Location</h2>
+
+  <!-- Flex container with same height for form & map -->
+  <div class="track-location-container" style="display: flex; gap: 20px; align-items: stretch; height: 350px;">
+    <!-- Form (left) -->
+    <form
+      id="trackLocationForm"
+      class="p-3 shadow bg-white rounded"
+      style="flex: 1; display: flex; flex-direction: column; justify-content: space-between;"
+    >
+      <div>
+        <div class="mb-3">
+          <label class="form-label">Employee</label>
+          <select class="form-select" name="employee" required>
+            <option value="">Select Employee</option>
+            <option>Vamshi</option>
+            <option>Suresh</option>
+            <option>Ramesh</option>
+            <option>Kushal</option>
+            <option>Aditya</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Current Location</label>
+          <input
+            type="text"
+            class="form-control"
+            name="location"
+            placeholder="Enter location"
+            required
+          />
+        </div>
+      </div>
+      <button class="btn btn-primary align-self-start" type="submit">Show</button>
+    </form>
+
+    <!-- Map (right) -->
+    <div class="map-container shadow bg-white rounded" style="flex: 1; overflow: hidden;">
+      <img
+        src="../images/map_placeholder.png"
+        alt="Map Placeholder"
+        style="width: 100%; height: 100%; object-fit: cover;"
+      />
+    </div>
+  </div>
+
+  <h4 class="mt-4">Location Updates</h4>
+  <div class="table-container shadow bg-white rounded p-3">
+    <table class="table table-striped" id="trackLocationTable">
+      <thead>
+        <tr>
+          <th>Employee</th>
+          <th>Location</th>
+          <th>Timestamp</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- New location updates appear here -->
+      </tbody>
+    </table>
+  </div>
+</div>
+    <!-- CREATE CHECKLIST PAGE -->
+<div id="createChecklist" class="page">
+  <h2>Create Checklist</h2>
+  <div class="checklist-container" style="display: flex; gap: 20px; flex-wrap: wrap;">
+    <!-- Checklist Form (Left Side) -->
+    <form id="checklistForm" class="p-3 shadow bg-white rounded" style="flex: 1; min-width: 300px;">
+      <div class="mb-3">
+        <label class="form-label">Checklist Name</label>
+        <input type="text" class="form-control" name="checklistName" placeholder="Onboarding" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Items (Comma Separated)</label>
+        <textarea class="form-control" rows="3" name="items" placeholder="ID Badge, Workstation Setup" required></textarea>
+      </div>
+      <button class="btn btn-primary" type="submit">Add Checklist</button>
+    </form>
+
+    <!-- Checklist Table (Right Side) -->
+    <div class="table-container shadow bg-white rounded p-3" style="flex: 1; min-width: 300px;">
+      <h4>Checklist List</h4>
+      <table class="table table-striped" id="checklistTable">
+        <thead>
+          <tr>
+            <th>Checklist Name</th>
+            <th>Items</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- New checklist entries will appear here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+   <!-- CLIENTS PAGE -->
+<div id="clients" class="page">
+  <h2>Clients</h2>
+  <div class="clients-container" style="display: flex; gap: 20px; flex-wrap: wrap;">
+    <!-- Clients Form (Left Side) -->
+    <form id="clientsForm" class="p-3 shadow bg-white rounded" style="flex: 1; min-width: 300px;">
+      <div class="mb-3">
+        <label class="form-label">Client Name</label>
+        <input type="text" class="form-control" name="clientName" placeholder="ABC Corp" required />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Purifier Name</label>
+        <select class="form-select" name="purifierName" required>
+          <option value="">Select Purifier</option>
+          <option>RO Purifier</option>
+          <option>D11-Purifier</option>
+          <option>RO-LITE-Purifier</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Purifier ID</label>
+        <input type="text" class="form-control" name="purifierId" placeholder="PUR-001" required />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Installation Date</label>
+        <input type="date" class="form-control" name="installDate" required />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Service Date</label>
+        <input type="date" class="form-control" name="serviceDate" required />
+      </div>
+      <button class="btn btn-primary" type="submit">Add Client</button>
+    </form>
+
+    <!-- Client List Table (Right Side) -->
+    <div class="table-container shadow bg-white rounded p-3" style="flex: 1; min-width: 300px;">
+      <h4>Client List</h4>
+      <table class="table table-striped" id="clientsTable">
+        <thead>
+          <tr>
+            <th>Client Name</th>
+            <th>Purifier Name</th>
+            <th>Purifier ID</th>
+            <th>Installation Date</th>
+            <th>Service Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- New client entries will appear here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+  <!-- PAYMENTS PAGE -->
+<div id="payments" class="page">
+  <h2>Payments</h2>
+  <div class="table-container shadow bg-white rounded p-3">
+    <table class="table table-striped" id="paymentsTable">
+      <thead>
+        <tr>
+          <th>Transaction ID</th>
+          <th>Client Name</th>
+          <th>Date</th>
+          <th>Amount (INR)</th>
+          <th>Payment Type</th>
+          <th>Mode of Payment</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>TXN-1001</td>
+          <td>ABC Corp</td>
+          <td>2025-03-01</td>
+          <td>₹5,000</td>
+          <td>Online</td>
+          <td>Credit Card</td>
+        </tr>
+        <tr>
+          <td>TXN-1002</td>
+          <td>XYZ Ltd</td>
+          <td>2025-03-03</td>
+          <td>₹3,000</td>
+          <td>Offline</td>
+          <td>Cash</td>
+        </tr>
+        <tr>
+          <td>TXN-1003</td>
+          <td>Acme Inc</td>
+          <td>2025-03-05</td>
+          <td>₹7,500</td>
+          <td>Online</td>
+          <td>Bank Transfer</td>
+        </tr>
+        <tr>
+          <td>TXN-1004</td>
+          <td>PQR Industries</td>
+          <td>2025-03-07</td>
+          <td>₹6,000</td>
+          <td>Online</td>
+          <td>Debit Card</td>
+        </tr>
+        <tr>
+          <td>TXN-1005</td>
+          <td>LMN Enterprises</td>
+          <td>2025-03-09</td>
+          <td>₹4,500</td>
+          <td>Offline</td>
+          <td>Cash</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+  <!-- PURIFIER DETAILS PAGE -->
+<div id="purifier" class="page">
+  <h2>Purifier Details</h2>
+  <form id="purifierForm" class="p-3 shadow bg-white rounded" style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+    <div class="mb-3" style="flex: 1; min-width: 150px;">
+      <label class="form-label">Purifier ID</label>
+      <input type="text" class="form-control" name="purifierId" placeholder="ID" required />
+    </div>
+    <div class="mb-3" style="flex: 1; min-width: 150px;">
+      <label class="form-label">Purifier Name</label>
+      <input type="text" class="form-control" name="purifierName" placeholder=" Purifier Name" required />
+    </div>
+    <div class="mb-3" style="flex: 1; min-width: 150px;">
+      <label class="form-label">Manufacturer</label>
+      <input type="text" class="form-control" name="purifierManufacturer" placeholder="Manufacturer Unit" required />
+    </div>
+    <button class="btn btn-primary" type="submit">Add Purifier</button>
+  </form>
+  
+  <div class="table-container shadow bg-white rounded p-3 mt-4">
+    <table class="table table-striped" id="purifierTable">
+      <thead>
+        <tr>
+          <th>Purifier ID</th>
+          <th>Purifier Name</th>
+          <th>Manufacturer</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- New purifier entries will appear here -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+  <!-- index.js -->
+  <script src="index.js"></script>
+</body>
+</html>
